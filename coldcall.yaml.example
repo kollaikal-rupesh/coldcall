@@ -1,0 +1,23 @@
+# ColdCall configuration
+# Copy to coldcall.yaml and fill in your keys
+
+twilio:
+  account_sid: ""
+  auth_token: ""
+
+deepgram:
+  api_key: ""
+
+openai:
+  api_key: ""
+
+cartesia:
+  api_key: ""
+
+server:
+  public_url: ""  # e.g. https://abc.ngrok.io
+  port: 8080
+
+defaults:
+  scenario: "dental-appointment"
+  area_code: "415"
