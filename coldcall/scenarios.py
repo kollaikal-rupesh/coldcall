@@ -35,7 +35,25 @@ from pathlib import Path
 
 import yaml
 
-SCENARIOS_DIR = Path(__file__).parent.parent / "scenarios"
+# Look for scenarios in: ./scenarios/ (local) then package builtin
+_LOCAL_SCENARIOS_DIR = Path("scenarios")
+_BUILTIN_SCENARIOS_DIR = Path(__file__).parent / "builtin_scenarios"
+# Also support the dev layout where scenarios/ is next to the package
+_DEV_SCENARIOS_DIR = Path(__file__).parent.parent / "scenarios"
+
+def _get_scenarios_dirs() -> list[Path]:
+    """Return scenario directories in priority order."""
+    dirs = []
+    if _LOCAL_SCENARIOS_DIR.exists():
+        dirs.append(_LOCAL_SCENARIOS_DIR)
+    if _DEV_SCENARIOS_DIR.exists() and _DEV_SCENARIOS_DIR.resolve() != _LOCAL_SCENARIOS_DIR.resolve():
+        dirs.append(_DEV_SCENARIOS_DIR)
+    if _BUILTIN_SCENARIOS_DIR.exists():
+        dirs.append(_BUILTIN_SCENARIOS_DIR)
+    return dirs
+
+# Primary scenarios dir for writing (local first, then dev)
+SCENARIOS_DIR = _LOCAL_SCENARIOS_DIR if _LOCAL_SCENARIOS_DIR.exists() else _DEV_SCENARIOS_DIR
 
 # Default Cartesia voice (Sarah)
 DEFAULT_VOICE_ID = "694f9389-aac1-45b6-b726-9d9369183238"
@@ -111,10 +129,12 @@ class Scenario:
 
 
 def list_scenarios() -> list[str]:
-    """List available scenario names from the scenarios directory."""
-    if not SCENARIOS_DIR.exists():
-        return []
-    return sorted(p.stem for p in SCENARIOS_DIR.glob("*.yaml"))
+    """List available scenario names from all scenario directories."""
+    names = set()
+    for d in _get_scenarios_dirs():
+        if d.exists():
+            names.update(p.stem for p in d.glob("*.yaml"))
+    return sorted(names)
 
 
 def _resolve_path(path: str | Path) -> Path:
@@ -123,15 +143,14 @@ def _resolve_path(path: str | Path) -> Path:
     if path.exists():
         return path
 
-    # Try scenarios directory with .yaml extension
-    alt = SCENARIOS_DIR / f"{path}.yaml"
-    if alt.exists():
-        return alt
-
-    # Try scenarios directory as-is
-    alt2 = SCENARIOS_DIR / path
-    if alt2.exists():
-        return alt2
+    # Search all scenario directories
+    for d in _get_scenarios_dirs():
+        alt = d / f"{path}.yaml"
+        if alt.exists():
+            return alt
+        alt2 = d / path
+        if alt2.exists():
+            return alt2
 
     available = list_scenarios()
     hint = f" Available: {', '.join(available)}" if available else ""
