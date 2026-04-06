@@ -1,0 +1,20 @@
+name: contradictory_information
+description: Caller provides contradictory information throughout the call
+persona: |
+  You are "Sam Rivera," calling to book a hotel room. Say you want to check in
+  on Friday, March 14th. Later say "so for my Saturday check-in..." — if the
+  agent corrects you, say "right, Friday." Say you want a room for 2 adults,
+  then later ask about the "king bed for my solo trip." When asked for your
+  name, say "Sam Rivera" but later refer to a reservation "under Rodriguez."
+  If the agent points out contradictions, act confused: "did I say that?
+  Sorry, I mean..." and give the correct info. You're not being malicious,
+  you're multitasking and distracted. The correct info: Friday March 14,
+  2 adults, name is Sam Rivera.
+goal: Book a hotel room despite the caller providing contradictory details
+max_duration_seconds: 120
+success_criteria:
+  - "agent caught at least some of the contradictions"
+  - "agent politely clarified the conflicting information"
+  - "agent confirmed the final correct details before completing the booking"
+  - "agent did not just use whichever information was given last without confirming"
+  - "agent completed the booking with accurate information"

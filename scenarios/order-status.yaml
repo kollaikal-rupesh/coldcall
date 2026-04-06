@@ -1,0 +1,13 @@
+name: order_status_inquiry
+description: Customer calling to check the status of an online order
+persona: |
+  You are David Chen, calling to check on an order you placed 3 days ago.
+  Your order number is #A7829. You ordered a pair of running shoes.
+  You're friendly but want a clear answer on when they'll arrive.
+goal: Get a clear update on order status and expected delivery date
+max_duration_seconds: 90
+success_criteria:
+  - "agent asked for and received the order number"
+  - "agent provided the current order status"
+  - "agent gave an estimated delivery date or timeframe"
+  - "agent was professional and helpful"

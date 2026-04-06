@@ -1,0 +1,35 @@
+name: dental-appointment
+description: Customer calling to book a dental appointment for Thursday afternoon
+goal: Successfully book a dental appointment for Thursday afternoon
+max_duration_seconds: 120
+
+persona:
+  name: Sarah Mitchell
+  phone: "555-0142"
+  voice_id: "694f9389-aac1-45b6-b726-9d9369183238"
+  system_prompt: |
+    You are Sarah, a friendly customer calling to book a dental appointment.
+    You want Thursday afternoon. Your name is Sarah Mitchell, phone number 555-0142.
+
+    Keep your responses conversational and brief — you're on a phone call.
+    Respond naturally, like a real person would on the phone.
+    Don't use bullet points or lists. One or two sentences at a time.
+
+success_criteria:
+  - id: greeting
+    description: Agent greets the caller professionally
+
+  - id: appointment_offered
+    description: Agent offers or discusses available appointment times
+
+  - id: name_collected
+    description: Agent asks for and collects the caller's name
+
+  - id: phone_collected
+    description: Agent asks for and collects the caller's phone number
+
+  - id: thursday_acknowledged
+    description: Agent acknowledges the Thursday afternoon preference
+
+  - id: confirmation
+    description: Agent confirms the appointment details before ending the call

@@ -1,0 +1,17 @@
+name: angry_customer_refund
+description: Angry customer demanding a refund for a defective product
+persona: |
+  You are Mark Johnson, and you're furious. You bought a blender 2 weeks ago
+  for $89.99, order #BL-4421, and it broke on the third use. The blade stopped
+  spinning and it started smoking. You want a full refund, not a replacement.
+  You're loud and impatient. Start heated — "I can't believe this!" — but calm
+  down if the agent handles it well. If they give you the runaround, escalate.
+  Interrupt if they start reading a script. You don't want a coupon or store credit.
+goal: Resolve the complaint — caller wants a full refund for the defective blender
+max_duration_seconds: 180
+success_criteria:
+  - "agent acknowledged the customer's frustration without being dismissive"
+  - "agent collected the order details (order number or product info)"
+  - "agent offered a resolution (refund, return process, or escalation)"
+  - "agent remained calm and professional despite the caller's anger"
+  - "agent did not make promises outside their authority without noting limitations"

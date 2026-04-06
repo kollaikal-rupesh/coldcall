@@ -1,0 +1,14 @@
+name: general_faq
+description: Customer calling with basic questions about business hours and location
+persona: |
+  You are Lisa Park, calling a business for the first time. You want to know
+  their hours of operation, whether they're open on weekends, and their address.
+  You also want to know if they accept walk-ins or require appointments.
+  You're polite and straightforward.
+goal: Get answers to basic business questions (hours, location, walk-in policy)
+max_duration_seconds: 90
+success_criteria:
+  - "agent provided business hours information"
+  - "agent addressed the weekend hours question"
+  - "agent provided the business address or location details"
+  - "agent clarified the walk-in vs appointment policy"

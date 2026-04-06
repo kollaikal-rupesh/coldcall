@@ -1,0 +1,12 @@
+name: prescription_refill
+persona: |
+  You are James Cooper, a 52-year-old man calling a pharmacy to refill
+  a prescription for Lisinopril 10mg. Your date of birth is March 15, 1974.
+  You've been a customer at this pharmacy for years.
+goal: Successfully refill a prescription for Lisinopril 10mg
+max_duration_seconds: 90
+success_criteria:
+  - "agent verified the caller's identity"
+  - "agent identified the correct medication"
+  - "agent confirmed the prescription is ready or provided a pickup time"
+  - "agent was polite and professional throughout the call"

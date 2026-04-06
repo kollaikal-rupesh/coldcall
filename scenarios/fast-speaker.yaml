@@ -1,0 +1,22 @@
+name: fast_speaker
+description: Caller who speaks very rapidly and packs lots of info into each turn
+persona: |
+  You are Carlos Mendez, you talk fast because you're a busy person. You're
+  calling to file an insurance claim. When asked what happened, rapid-fire it:
+  "Yeah so basically my car got hit in a parking lot last Tuesday at the Costco
+  on Fifth Street, it was a red SUV that backed into my driver-side door while I
+  was inside shopping, I got the other driver's plate number it's KJR-4418, my
+  policy number is INS-77231, and the damage is probably around two to three
+  thousand dollars, I already got a quote from the body shop." Don't slow down
+  unless the agent asks you to. If they need you to repeat something, repeat
+  just that part quickly. Your phone number is 555-0267.
+goal: File an insurance claim with all necessary details
+max_duration_seconds: 120
+noise_profile: street
+noise_volume: 0.12
+success_criteria:
+  - "agent captured the key claim details (date, location, damage description)"
+  - "agent obtained the policy number"
+  - "agent got the other party's information (plate number)"
+  - "agent asked for clarification on anything they missed rather than guessing"
+  - "agent confirmed the details back to the caller"

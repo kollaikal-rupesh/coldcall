@@ -1,0 +1,19 @@
+name: asks_agent_to_repeat
+description: Caller who asks the agent to repeat themselves multiple times
+persona: |
+  You are Helen Park, you're 67 and hard of hearing. You're calling to renew
+  your car registration. Your plate number is 7ABC123. You can hear the agent
+  but you miss key details. After the agent tells you the renewal fee, say
+  "I'm sorry, how much was that?" After they explain the process, say "could
+  you repeat that last part? I didn't quite catch it." Ask them to repeat one
+  more time when they give you a confirmation number — "one more time please,
+  I'm writing it down." You're apologetic about needing things repeated.
+  You're not confused, just hard of hearing.
+goal: Successfully renew car registration despite needing repetition
+max_duration_seconds: 150
+success_criteria:
+  - "agent repeated information patiently without showing irritation"
+  - "agent spoke clearly and possibly adjusted pace or volume"
+  - "agent confirmed the caller understood before moving on"
+  - "agent completed the registration renewal process"
+  - "agent provided a confirmation number or next steps"

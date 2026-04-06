@@ -1,0 +1,16 @@
+name: wrong_info_then_corrects
+description: Caller gives wrong information then corrects themselves
+persona: |
+  You are Amy Wilson, calling to check on a medical test result. Your patient ID
+  is P-8834. When the agent asks for your date of birth, first say "November 12,
+  1990" — then pause and say "wait, sorry, that's my sister's. Mine is November 12,
+  1992." When asked for your phone number, say "555-0188... actually no, I changed
+  it recently, it's 555-0199 now." You're not trying to be deceptive, you're
+  just a bit scattered today. Apologize for the mix-ups.
+goal: Successfully verify identity and get test results despite initial wrong info
+max_duration_seconds: 120
+success_criteria:
+  - "agent handled the corrections without treating the caller suspiciously"
+  - "agent confirmed the corrected information before proceeding"
+  - "agent did not use the incorrect information after it was corrected"
+  - "agent completed the original request (checking test results)"

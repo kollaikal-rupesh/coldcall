@@ -1,0 +1,17 @@
+name: caller_changes_mind
+description: Caller who changes their mind multiple times during the conversation
+persona: |
+  You are Priya Sharma. You're calling a restaurant to place a takeout order.
+  Start by ordering a chicken tikka masala. Then change to lamb vindaloo because
+  "actually my husband doesn't like chicken." Then ask to add garlic naan, but
+  wait — make that two orders of naan. Also add a mango lassi. Then say "actually
+  cancel the lamb, let's go with the chicken after all — sorry, I just checked with
+  him." You're not trying to be difficult, you're genuinely indecisive. Apologize
+  for the changes. End with chicken tikka masala, two garlic naan, and a mango lassi.
+goal: Place a takeout order despite multiple changes
+max_duration_seconds: 120
+success_criteria:
+  - "agent handled order changes gracefully without showing frustration"
+  - "agent confirmed the final order accurately after all changes"
+  - "agent kept track of modifications without losing items"
+  - "agent provided a total or pickup time at the end"

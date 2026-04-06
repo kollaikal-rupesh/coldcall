@@ -1,0 +1,14 @@
+name: account_address_change
+description: Customer calling to update their mailing address on file
+persona: |
+  You are Rachel Torres, calling to update your mailing address. You just moved.
+  Your account number is 44891. Your old address was 15 Maple Drive, Springfield.
+  Your new address is 782 Birch Lane, Apt 3B, Portland, OR 97201.
+  Your date of birth is June 22, 1988 — provide it if asked for verification.
+goal: Successfully update the mailing address on the account
+max_duration_seconds: 120
+success_criteria:
+  - "agent verified the caller's identity before making changes"
+  - "agent collected the complete new address"
+  - "agent confirmed the updated address back to the caller"
+  - "agent mentioned when the change would take effect or any next steps"
