@@ -277,6 +277,92 @@ def _load_session(d: Path) -> dict:
 
 
 # ---------------------------------------------------------------------------
+# REST API — Settings
+# ---------------------------------------------------------------------------
+
+@app.get("/api/settings")
+async def api_get_settings():
+    from coldcall.config import load_config
+    cfg = load_config()
+    return {
+        "twilio_account_sid": _mask(cfg.twilio.account_sid),
+        "twilio_auth_token": _mask(cfg.twilio.auth_token),
+        "deepgram_api_key": _mask(cfg.deepgram_api_key),
+        "openai_api_key": _mask(cfg.openai_api_key),
+        "cartesia_api_key": _mask(cfg.cartesia_api_key),
+        "public_url": cfg.server.public_url,
+        "port": cfg.server.port,
+        "default_scenario": cfg.defaults.scenario,
+        "has_config_file": cfg._path is not None,
+    }
+
+
+@app.put("/api/settings")
+async def api_update_settings(request: Request):
+    from coldcall.config import load_config, save_config
+    body = await request.json()
+    cfg = load_config()
+
+    # Only update non-empty values (don't overwrite with masked values)
+    if body.get("twilio_account_sid") and not body["twilio_account_sid"].startswith("****"):
+        cfg.twilio.account_sid = body["twilio_account_sid"]
+    if body.get("twilio_auth_token") and not body["twilio_auth_token"].startswith("****"):
+        cfg.twilio.auth_token = body["twilio_auth_token"]
+    if body.get("deepgram_api_key") and not body["deepgram_api_key"].startswith("****"):
+        cfg.deepgram_api_key = body["deepgram_api_key"]
+    if body.get("openai_api_key") and not body["openai_api_key"].startswith("****"):
+        cfg.openai_api_key = body["openai_api_key"]
+    if body.get("cartesia_api_key") and not body["cartesia_api_key"].startswith("****"):
+        cfg.cartesia_api_key = body["cartesia_api_key"]
+    if body.get("public_url"):
+        cfg.server.public_url = body["public_url"]
+
+    save_config(cfg)
+
+    # Apply to environment immediately
+    from coldcall.config import apply_config_to_env
+    apply_config_to_env(cfg)
+
+    return {"status": "saved"}
+
+
+def _mask(value: str) -> str:
+    if not value or len(value) < 8:
+        return ""
+    return "****" + value[-4:]
+
+
+# ---------------------------------------------------------------------------
+# REST API — Demo run
+# ---------------------------------------------------------------------------
+
+@app.post("/api/demo/run")
+async def api_run_demo(request: Request):
+    """Run a demo conversation and return the result."""
+    body = await request.json()
+    scenario_name = body.get("scenario", "dental-appointment")
+
+    from coldcall.config import apply_config_to_env, load_config
+    cfg = load_config()
+    apply_config_to_env(cfg)
+
+    from coldcall.demo import run_demo
+    from coldcall.scenarios import Scenario
+
+    sc = Scenario.from_yaml(scenario_name)
+    result = run_demo(sc)
+
+    # Load the full session data
+    if RESULTS_DIR.exists():
+        dirs = sorted([d for d in RESULTS_DIR.iterdir() if d.is_dir()], reverse=True)
+        if dirs:
+            session_data = _load_session(dirs[0])
+            return {"evaluation": result, "session": session_data}
+
+    return {"evaluation": result}
+
+
+# ---------------------------------------------------------------------------
 # Dashboard — Serve React SPA
 # ---------------------------------------------------------------------------
 
@@ -318,6 +404,8 @@ _INLINE_DASHBOARD = """\
   body { font-family: 'Inter', system-ui, sans-serif; }
   .fade-in { animation: fadeIn 0.3s ease-in; }
   @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+  .pulse { animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
 </style>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen">
@@ -326,10 +414,13 @@ _INLINE_DASHBOARD = """\
   <!-- Sidebar -->
   <nav class="w-56 bg-gray-900 border-r border-gray-800 flex flex-col p-4 shrink-0">
     <h1 class="text-xl font-bold text-brand mb-8">ColdCall</h1>
+    <a onclick="navigate('demo')" class="nav-link cursor-pointer px-3 py-2 rounded-lg mb-1 hover:bg-gray-800 transition flex items-center gap-2"><span>&#9654;</span> Run Demo</a>
     <a onclick="navigate('scenarios')" class="nav-link cursor-pointer px-3 py-2 rounded-lg mb-1 hover:bg-gray-800 transition">Scenarios</a>
     <a onclick="navigate('results')" class="nav-link cursor-pointer px-3 py-2 rounded-lg mb-1 hover:bg-gray-800 transition">Results</a>
     <a onclick="navigate('create')" class="nav-link cursor-pointer px-3 py-2 rounded-lg mb-1 hover:bg-gray-800 transition">+ New Scenario</a>
-    <div class="mt-auto text-xs text-gray-600 pt-4">v0.1.0</div>
+    <div class="flex-1"></div>
+    <a onclick="navigate('settings')" class="nav-link cursor-pointer px-3 py-2 rounded-lg mb-1 hover:bg-gray-800 transition text-gray-500">Settings</a>
+    <div class="text-xs text-gray-600 pt-2">v0.1.0</div>
   </nav>
 
   <!-- Main content -->
@@ -338,30 +429,125 @@ _INLINE_DASHBOARD = """\
 
 <script>
 const API = '';
-let currentPage = 'scenarios';
+let currentPage = 'demo';
 
 function esc(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 function navigate(page, data) {
   currentPage = page;
   document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('bg-gray-800', 'text-white'));
-  if (page === 'scenarios' || page === 'results' || page === 'create') {
-    const links = document.querySelectorAll('.nav-link');
-    const idx = page === 'scenarios' ? 0 : page === 'results' ? 1 : 2;
-    if (links[idx]) links[idx].classList.add('bg-gray-800', 'text-white');
-  }
+  const navMap = {demo:0, scenarios:1, results:2, create:3, settings:4};
+  const links = document.querySelectorAll('.nav-link');
+  if (navMap[page] !== undefined && links[navMap[page]]) links[navMap[page]].classList.add('bg-gray-800', 'text-white');
   render(page, data);
 }
 
 async function render(page, data) {
   const el = document.getElementById('content');
   try {
-    if (page === 'scenarios') await renderScenarios(el);
+    if (page === 'demo') await renderDemo(el);
+    else if (page === 'scenarios') await renderScenarios(el);
     else if (page === 'results') await renderResults(el);
     else if (page === 'result-detail') await renderResultDetail(el, data);
     else if (page === 'scenario-detail') await renderScenarioDetail(el, data);
     else if (page === 'create') renderCreateScenario(el);
+    else if (page === 'settings') await renderSettings(el);
   } catch(e) { el.innerHTML = `<p class="text-red-400">Error: ${e.message}</p>`; }
+}
+
+// --- Demo / Run Test Page ---
+async function renderDemo(el) {
+  const res = await fetch(`${API}/api/scenarios`);
+  const scenarios = await res.json();
+  const settings = await (await fetch(`${API}/api/settings`)).json();
+  const hasKey = settings.openai_api_key && settings.openai_api_key.length > 0;
+
+  el.innerHTML = `
+    <div class="fade-in max-w-3xl">
+      <h2 class="text-2xl font-bold mb-2">Run Demo</h2>
+      <p class="text-gray-400 text-sm mb-6">Two LLMs have a phone conversation. Only requires an OpenAI API key.</p>
+      ${!hasKey ? '<div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6"><p class="text-sm text-yellow-400">No OpenAI API key configured. <a onclick="navigate(\'settings\')" class="underline cursor-pointer">Add it in Settings</a> first.</p></div>' : ''}
+      <div class="flex gap-4 items-end mb-8">
+        <div class="flex-1">
+          <label class="block text-sm text-gray-400 mb-1">Scenario</label>
+          <select id="demo-scenario" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none">
+            ${scenarios.map(s => '<option value="'+s.name+'">'+esc(s.name)+' — '+esc(s.persona_name)+'</option>').join('')}
+          </select>
+        </div>
+        <button onclick="runDemo()" id="demo-btn" class="bg-brand hover:bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm transition ${!hasKey?'opacity-50 cursor-not-allowed':''}" ${!hasKey?'disabled':''}>Run Test</button>
+      </div>
+      <div id="demo-output" class="hidden">
+        <div id="demo-status" class="text-sm text-gray-400 mb-4 flex items-center gap-2"></div>
+        <div id="demo-transcript" class="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-2"></div>
+        <div id="demo-result" class="mt-4"></div>
+      </div>
+    </div>`;
+}
+
+async function runDemo() {
+  const scenario = document.getElementById('demo-scenario').value;
+  const btn = document.getElementById('demo-btn');
+  const output = document.getElementById('demo-output');
+  const status = document.getElementById('demo-status');
+  const transcript = document.getElementById('demo-transcript');
+  const resultDiv = document.getElementById('demo-result');
+
+  btn.disabled = true;
+  btn.textContent = 'Running...';
+  btn.classList.add('opacity-50');
+  output.classList.remove('hidden');
+  status.innerHTML = '<span class="pulse text-brand">&#9679;</span> Conversation in progress...';
+  transcript.innerHTML = '';
+  resultDiv.innerHTML = '';
+
+  try {
+    const res = await fetch(`${API}/api/demo/run`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({scenario})
+    });
+    const data = await res.json();
+
+    // Show transcript
+    const turns = data.session?.transcript?.turns || [];
+    transcript.innerHTML = turns.map(t => `
+      <div class="flex gap-3">
+        <span class="text-xs text-gray-600 w-12 text-right shrink-0 mt-0.5">${t.start_time}s</span>
+        <span class="text-xs font-medium w-20 shrink-0 mt-0.5 ${t.speaker==='AGENT'?'text-blue-400':'text-green-400'}">${t.speaker}</span>
+        <p class="text-sm text-gray-300">${esc(t.text)}</p>
+      </div>
+    `).join('');
+
+    // Show evaluation
+    const ev = data.evaluation || {};
+    if (ev.overall) {
+      const color = ev.overall === 'PASS' ? 'green' : 'red';
+      const criteria = ev.criteria || [];
+      const passed = criteria.filter(c => c.result === 'PASS').length;
+      status.innerHTML = '<span class="text-'+color+'-400">&#9679;</span> Complete';
+      resultDiv.innerHTML = `
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="px-3 py-1 rounded-full text-sm font-medium bg-${color}-500/20 text-${color}-400">${ev.overall}</span>
+            <span class="text-sm text-gray-400">${passed}/${criteria.length} criteria passed</span>
+          </div>
+          <p class="text-sm text-gray-400 mb-3">${esc(ev.summary || '')}</p>
+          ${criteria.map(c => `
+            <div class="flex items-start gap-2 mb-1">
+              <span class="text-xs mt-0.5 ${c.result==='PASS'?'text-green-400':'text-red-400'}">${c.result==='PASS'?'&#10003;':'&#10007;'}</span>
+              <span class="text-sm text-gray-400">${esc(c.explanation || c.id)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <button onclick="navigate('results')" class="mt-4 text-sm text-brand hover:underline">View full results &rarr;</button>`;
+    }
+  } catch(e) {
+    status.innerHTML = '<span class="text-red-400">&#9679;</span> Error: ' + esc(e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Run Test';
+  btn.classList.remove('opacity-50');
 }
 
 // --- Scenarios Page ---
@@ -426,7 +612,10 @@ async function renderScenarioDetail(el, name) {
           </div>
         `).join('')}
       </div>
-      <button onclick="deleteScenario('${s.name}')" class="text-xs text-red-500 hover:text-red-400">Delete scenario</button>
+      <div class="flex gap-4 items-center">
+        <button onclick="document.getElementById('demo-scenario')&&(document.getElementById('demo-scenario').value='${s.name}');navigate('demo')" class="bg-brand hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm transition">Run Test</button>
+        <button onclick="deleteScenario('${s.name}')" class="text-xs text-red-500 hover:text-red-400">Delete scenario</button>
+      </div>
     </div>`;
 }
 
@@ -603,8 +792,81 @@ async function renderResultDetail(el, id) {
     </div>`;
 }
 
+// --- Settings Page ---
+async function renderSettings(el) {
+  const res = await fetch(`${API}/api/settings`);
+  const s = await res.json();
+
+  el.innerHTML = `
+    <div class="fade-in max-w-2xl">
+      <h2 class="text-2xl font-bold mb-2">Settings</h2>
+      <p class="text-gray-400 text-sm mb-6">API keys are saved to coldcall.yaml. Only the demo requires OpenAI — the full pipeline also needs Deepgram, Cartesia, and Twilio.</p>
+      <form onsubmit="saveSettings(event)" class="space-y-4">
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase mb-4">Required for Demo</h3>
+          <div class="mb-3">
+            <label class="block text-xs text-gray-500 mb-1">OpenAI API Key</label>
+            <input id="s-openai" type="password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none font-mono" value="${s.openai_api_key}" placeholder="sk-...">
+          </div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase mb-4">Required for Voice Calls</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Deepgram API Key</label>
+              <input id="s-deepgram" type="password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none font-mono" value="${s.deepgram_api_key}" placeholder="...">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Cartesia API Key</label>
+              <input id="s-cartesia" type="password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none font-mono" value="${s.cartesia_api_key}" placeholder="...">
+            </div>
+          </div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase mb-4">Twilio (for phone calls)</h3>
+          <div class="grid grid-cols-2 gap-4 mb-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Account SID</label>
+              <input id="s-twilio-sid" type="password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none font-mono" value="${s.twilio_account_sid}" placeholder="AC...">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">Auth Token</label>
+              <input id="s-twilio-token" type="password" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none font-mono" value="${s.twilio_auth_token}" placeholder="...">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Public URL</label>
+            <input id="s-url" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none" value="${s.public_url || ''}" placeholder="https://your.ngrok.app">
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <button type="submit" class="bg-brand hover:bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm transition">Save Settings</button>
+          <span id="s-status" class="text-sm text-green-400 hidden">Saved!</span>
+        </div>
+      </form>
+    </div>`;
+}
+
+async function saveSettings(e) {
+  e.preventDefault();
+  const body = {
+    openai_api_key: document.getElementById('s-openai').value,
+    deepgram_api_key: document.getElementById('s-deepgram').value,
+    cartesia_api_key: document.getElementById('s-cartesia').value,
+    twilio_account_sid: document.getElementById('s-twilio-sid').value,
+    twilio_auth_token: document.getElementById('s-twilio-token').value,
+    public_url: document.getElementById('s-url').value,
+  };
+  await fetch(`${API}/api/settings`, {
+    method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body)
+  });
+  const st = document.getElementById('s-status');
+  st.classList.remove('hidden');
+  setTimeout(() => st.classList.add('hidden'), 2000);
+}
+
 // Init
-navigate('scenarios');
+navigate('demo');
 </script>
 </body>
 </html>
