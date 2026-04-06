@@ -70,7 +70,65 @@ def serve(
 
 
 # ---------------------------------------------------------------------------
-# coldcall call
+# coldcall test (direct WebSocket — no Twilio needed)
+# ---------------------------------------------------------------------------
+
+@app.command()
+def test(
+    url: str = typer.Argument(..., help="Agent WebSocket URL (ws://host:port/path)"),
+    scenario: str = typer.Option("dental-appointment", help="Scenario name or YAML path"),
+    sample_rate: int = typer.Option(16000, "--rate", help="Audio sample rate in Hz"),
+    protocol: str = typer.Option("raw", help="Audio protocol: raw (binary PCM) or json (base64)"),
+    ci: bool = typer.Option(False, help="CI mode: exit 0 on pass, 1 on fail"),
+    config: Path = typer.Option(None, help="Path to coldcall.yaml"),
+):
+    """Test a voice agent via direct WebSocket — no Twilio needed.
+
+    Connects directly to the agent's WebSocket endpoint, plays a persona,
+    records the conversation, and evaluates against success criteria.
+
+    \b
+    Examples:
+      coldcall test ws://localhost:8080/ws
+      coldcall test wss://agent.example.com/audio --scenario angry-refund
+      coldcall test ws://localhost:8080/ws --rate 8000 --protocol json
+    """
+    import asyncio
+    from coldcall.config import apply_config_to_env, load_config
+    from coldcall.scenarios import Scenario
+
+    cfg = load_config(config)
+    apply_config_to_env(cfg)
+
+    sc = Scenario.from_yaml(scenario)
+
+    console.print(f"[bold]ColdCall[/] direct test")
+    console.print(f"  Agent:     {url}")
+    console.print(f"  Scenario:  {sc.name} — {sc.description}")
+    console.print(f"  Persona:   {sc.persona.name}")
+    console.print(f"  Protocol:  {protocol} @ {sample_rate}Hz")
+    console.print()
+
+    from coldcall.direct import run_direct_test
+    result = asyncio.run(run_direct_test(url, sc, sample_rate=sample_rate, protocol=protocol))
+
+    if result:
+        overall = result.get("overall", "UNKNOWN")
+        color = "green" if overall == "PASS" else "red"
+        passed = sum(1 for c in result.get("criteria", []) if c.get("result") == "PASS")
+        total = len(result.get("criteria", []))
+        console.print(f"\n[bold]Result:[/] [{color}]{overall}[/{color}] ({passed}/{total} criteria)")
+        console.print(f"Summary: {result.get('summary', '')}")
+
+    if ci:
+        if result and result.get("overall") == "PASS":
+            raise typer.Exit(0)
+        else:
+            raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
+# coldcall call (outbound via Twilio)
 # ---------------------------------------------------------------------------
 
 @app.command()
