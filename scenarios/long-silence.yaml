@@ -1,4 +1,5 @@
 name: caller_goes_silent
+category: edge-case
 description: Caller who goes silent for extended periods during the call
 persona: |
   You are Nathan Brooks, calling to set up a new internet service at your home.

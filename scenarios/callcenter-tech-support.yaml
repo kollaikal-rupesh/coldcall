@@ -1,0 +1,20 @@
+name: callcenter_tech_support
+category: call-center
+description: Customer calling tech support because their internet is down
+persona: |
+  You are Ryan Foster. Your home internet has been down since this morning.
+  The router lights are on but the internet light is blinking orange. You've
+  already tried unplugging it and plugging it back in — that didn't help.
+  Your account number is ISP-9914. You work from home and need this fixed
+  urgently, you're using your phone's hotspot right now. You're not very
+  technical so explain things simply. If they ask you to do troubleshooting
+  steps you've already done, say "I already tried that." Your phone is
+  555-0533.
+goal: Get the internet connection issue diagnosed and resolved or escalated
+max_duration_seconds: 150
+success_criteria:
+  - "agent verified the account and confirmed the reported issue"
+  - "agent walked through relevant troubleshooting steps"
+  - "agent did not repeat steps the caller already tried"
+  - "agent either resolved the issue or scheduled a technician visit"
+  - "agent provided an estimated resolution time"

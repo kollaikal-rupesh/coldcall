@@ -135,6 +135,7 @@ async def api_list_scenarios():
             "persona_name": s.persona.name,
             "criteria_count": len(s.success_criteria),
             "max_duration_seconds": s.max_duration_seconds,
+            "category": s.category,
         })
     return out
 
@@ -551,29 +552,49 @@ async function runDemo() {
 }
 
 // --- Scenarios Page ---
+const CATEGORY_LABELS = {
+  'happy-path': {label: 'Happy Path', emoji: '\\u2705', color: 'green'},
+  'difficult-caller': {label: 'Difficult Callers', emoji: '\\ud83d\\ude24', color: 'orange'},
+  'edge-case': {label: 'Edge Cases', emoji: '\\u26a0\\ufe0f', color: 'yellow'},
+  'adversarial': {label: 'Adversarial / Red Team', emoji: '\\ud83d\\udee1\\ufe0f', color: 'red'},
+  'property-management': {label: 'Property Management', emoji: '\\ud83c\\udfe0', color: 'blue'},
+  'call-center': {label: 'Call Center', emoji: '\\ud83d\\udcde', color: 'purple'},
+};
+
 async function renderScenarios(el) {
   const res = await fetch(`${API}/api/scenarios`);
   const scenarios = await res.json();
-  el.innerHTML = `
-    <div class="fade-in">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-bold">Scenarios</h2>
-        <button onclick="navigate('create')" class="bg-brand hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm transition">+ New Scenario</button>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        ${scenarios.map(s => `
-          <div onclick="navigate('scenario-detail','${s.name}')" class="bg-gray-900 border border-gray-800 rounded-xl p-5 cursor-pointer hover:border-brand transition">
-            <h3 class="font-semibold text-white mb-1">${esc(s.name)}</h3>
-            <p class="text-sm text-gray-400 mb-3">${esc(s.description)}</p>
-            <div class="flex gap-4 text-xs text-gray-500">
-              <span>${s.persona_name}</span>
-              <span>${s.criteria_count} criteria</span>
-              <span>${s.max_duration_seconds}s max</span>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
+  const grouped = {};
+  scenarios.forEach(function(s) {
+    const cat = s.category || 'other';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(s);
+  });
+  const order = ['happy-path','difficult-caller','edge-case','adversarial','property-management','call-center','other'];
+  let html = '<div class="fade-in">'
+    + '<div class="flex items-center justify-between mb-6">'
+    + '<h2 class="text-2xl font-bold">Scenarios <span class="text-sm font-normal text-gray-500">'+scenarios.length+' total</span></h2>'
+    + '<button onclick="navigate(\'create\')" class="bg-brand hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm transition">+ New Scenario</button>'
+    + '</div>';
+  order.forEach(function(cat) {
+    if (!grouped[cat]) return;
+    const info = CATEGORY_LABELS[cat] || {label: cat, emoji: '', color: 'gray'};
+    html += '<div class="mb-8">'
+      + '<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">' + info.emoji + ' ' + info.label + ' <span class="text-gray-600">(' + grouped[cat].length + ')</span></h3>'
+      + '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">';
+    grouped[cat].forEach(function(s) {
+      html += '<div onclick="navigate(\'scenario-detail\',\''+s.name+'\')" class="bg-gray-900 border border-gray-800 rounded-xl p-4 cursor-pointer hover:border-brand transition">'
+        + '<h4 class="font-medium text-white text-sm mb-1">'+esc(s.name)+'</h4>'
+        + '<p class="text-xs text-gray-400 mb-2">'+esc(s.description).substring(0,80)+'</p>'
+        + '<div class="flex gap-3 text-xs text-gray-600">'
+        + '<span>'+esc(s.persona_name)+'</span>'
+        + '<span>'+s.criteria_count+' criteria</span>'
+        + '</div></div>';
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
 }
 
 // --- Scenario Detail ---

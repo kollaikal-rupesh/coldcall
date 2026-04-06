@@ -1,4 +1,5 @@
 name: dental-appointment
+category: happy-path
 description: Customer calling to book a dental appointment for Thursday afternoon
 goal: Successfully book a dental appointment for Thursday afternoon
 max_duration_seconds: 120

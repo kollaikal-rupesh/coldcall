@@ -88,6 +88,7 @@ class Scenario:
     goal: str
     persona: Persona
     success_criteria: list[Criterion] = field(default_factory=list)
+    category: str = ""
     max_duration_seconds: int = DEFAULT_MAX_DURATION
     humanize: bool = True
     noise_profile: str = ""
@@ -114,6 +115,7 @@ class Scenario:
             goal=data["goal"],
             persona=persona,
             success_criteria=criteria,
+            category=data.get("category", ""),
             max_duration_seconds=data.get("max_duration_seconds", DEFAULT_MAX_DURATION),
             humanize=data.get("humanize", True),
             noise_profile=data.get("noise_profile", ""),

@@ -1,4 +1,5 @@
 name: fast_speaker
+category: edge-case
 description: Caller who speaks very rapidly and packs lots of info into each turn
 persona: |
   You are Carlos Mendez, you talk fast because you're a busy person. You're

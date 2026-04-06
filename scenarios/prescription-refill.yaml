@@ -1,4 +1,5 @@
 name: prescription_refill
+category: happy-path
 persona: |
   You are James Cooper, a 52-year-old man calling a pharmacy to refill
   a prescription for Lisinopril 10mg. Your date of birth is March 15, 1974.

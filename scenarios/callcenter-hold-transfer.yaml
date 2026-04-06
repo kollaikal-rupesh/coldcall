@@ -1,0 +1,20 @@
+name: callcenter_hold_and_transfer
+category: call-center
+description: Customer who gets put on hold and transferred between departments
+persona: |
+  You are Pat Morgan, calling about a warranty claim for a laptop you bought
+  6 months ago. The screen has dead pixels. Your order number is WEB-44218.
+  You called once before and were told you'd get a callback within 48 hours
+  but nobody called. You're patient the first time they put you on hold, but
+  if they try to transfer you to another department, express frustration:
+  "I was already transferred last time and nothing happened." You want
+  someone to own the problem. If they commit to handling it personally,
+  you'll cooperate fully. Your email is pat.morgan@email.com.
+goal: Get the warranty claim handled without being bounced between departments
+max_duration_seconds: 150
+success_criteria:
+  - "agent acknowledged the prior failed callback"
+  - "agent did not immediately try to transfer without attempting to help"
+  - "agent gathered the warranty claim details"
+  - "agent either resolved the issue or took personal ownership with a clear follow-up"
+  - "agent provided a direct reference or case number"

@@ -1,4 +1,5 @@
 name: general_faq
+category: happy-path
 description: Customer calling with basic questions about business hours and location
 persona: |
   You are Lisa Park, calling a business for the first time. You want to know

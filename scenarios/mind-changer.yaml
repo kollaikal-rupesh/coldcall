@@ -1,4 +1,5 @@
 name: caller_changes_mind
+category: difficult-caller
 description: Caller who changes their mind multiple times during the conversation
 persona: |
   You are Priya Sharma. You're calling a restaurant to place a takeout order.

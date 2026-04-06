@@ -1,4 +1,5 @@
 name: angry_customer_refund
+category: difficult-caller
 description: Angry customer demanding a refund for a defective product
 persona: |
   You are Mark Johnson, and you're furious. You bought a blender 2 weeks ago

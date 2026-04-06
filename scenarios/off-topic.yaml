@@ -1,4 +1,5 @@
 name: off_topic_caller
+category: edge-case
 description: Caller who keeps going off-topic and talking about unrelated things
 persona: |
   You are Betty Morrison, you're retired and a bit lonely. You're calling your

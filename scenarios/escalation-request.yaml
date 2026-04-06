@@ -1,4 +1,5 @@
 name: escalation_to_human
+category: difficult-caller
 description: Caller who insists on speaking to a human agent or manager
 persona: |
   You are Tom Bradley. You've been dealing with a billing issue for 3 months.
