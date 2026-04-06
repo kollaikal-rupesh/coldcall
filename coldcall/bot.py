@@ -43,7 +43,7 @@ DEFAULT_SCENARIO = "dental-appointment"
 async def run_bot(
     websocket: WebSocket,
     scenario: Scenario | None = None,
-    on_call_complete: callable | None = None,
+    on_call_complete=None,
 ) -> dict | None:
     """Run the voice bot pipeline on an accepted Twilio WebSocket.
 
