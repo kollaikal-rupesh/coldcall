@@ -20,6 +20,65 @@ console = Console()
 # coldcall serve
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# coldcall demo (text-only, one API key, instant)
+# ---------------------------------------------------------------------------
+
+@app.command()
+def demo(
+    scenario: str = typer.Option("dental-appointment", help="Scenario name or YAML path"),
+    model: str = typer.Option("gpt-4o-mini", help="OpenAI model for both sides"),
+    config: Path = typer.Option(None, help="Path to coldcall.yaml"),
+):
+    """Run a demo conversation — two LLMs talking, no audio APIs needed.
+
+    Only requires OPENAI_API_KEY. Shows a full conversation with evaluation.
+    Great for trying ColdCall for the first time.
+
+    \b
+    Examples:
+      export OPENAI_API_KEY=sk-...
+      coldcall demo
+      coldcall demo --scenario angry-refund
+      coldcall demo --scenario prompt-extraction
+    """
+    from coldcall.config import apply_config_to_env, load_config
+    from coldcall.demo import run_demo
+    from coldcall.scenarios import Scenario
+
+    cfg = load_config(config)
+    apply_config_to_env(cfg)
+
+    sc = Scenario.from_yaml(scenario)
+
+    console.print(f"[bold]ColdCall Demo[/]")
+    console.print(f"  Scenario:  {sc.name}")
+    console.print(f"  Persona:   {sc.persona.name}")
+    console.print(f"  Model:     {model}")
+    console.print(f"  Mode:      text-only (no audio, no Twilio)")
+    console.print()
+
+    result = run_demo(sc, model=model)
+
+    if result:
+        overall = result.get("overall", "UNKNOWN")
+        color = "green" if overall == "PASS" else "red"
+        passed = sum(1 for c in result.get("criteria", []) if c.get("result") == "PASS")
+        total = len(result.get("criteria", []))
+        console.print(f"\n[bold]Result:[/] [{color}]{overall}[/{color}] ({passed}/{total} criteria)")
+        console.print(f"Summary: {result.get('summary', '')}")
+        for c in result.get("criteria", []):
+            r = c.get("result", "?")
+            rc = "green" if r == "PASS" else "red"
+            console.print(f"  [{rc}][{r}][/{rc}] {c.get('id', '')}: {c.get('explanation', '')}")
+
+        console.print(f"\n[dim]Results saved to results/. Run 'coldcall results --last' to review.[/]")
+
+
+# ---------------------------------------------------------------------------
+# coldcall serve (Twilio mode)
+# ---------------------------------------------------------------------------
+
 @app.command()
 def serve(
     scenario: str = typer.Option("dental-appointment", help="Scenario name or YAML path"),
@@ -56,39 +115,17 @@ def serve(
     server.ONCE_MODE = once
     server.CI_MODE = ci
 
-    if not ci:
-        console.print(f"[bold]ColdCall[/] server starting on port {p}")
-        console.print(f"  Voice webhook: {url}/voice")
-        console.print(f"  WebSocket:     {server.WEBSOCKET_URL}")
-        console.print(f"  Dashboard:     {url}/")
-        console.print(f"  Scenario:      {sc.name} — {sc.description}")
-        console.print(f"  Persona:       {sc.persona.name}")
-        console.print(f"  Criteria:      {len(sc.success_criteria)}")
-        console.print(f"  Recording:     enabled (dual-channel)")
-        if once:
-            console.print(f"  Mode:          --once (exit after first call)")
-        console.print("Waiting for calls...\n")
-
-    if timeout and once:
-        # Start a background timer that kills the server if no call arrives
-        import threading
-        def _timeout_handler():
-            console.print(f"[red]Timeout: no call received within {timeout}s[/]")
-            import os, signal
-            os.kill(os.getpid(), signal.SIGINT)
-        timer = threading.Timer(timeout, _timeout_handler)
-        timer.daemon = True
-        timer.start()
+    console.print(f"[bold]ColdCall[/] server starting on port {p}")
+    console.print(f"  Voice webhook: {url}/voice")
+    console.print(f"  WebSocket:     {server.WEBSOCKET_URL}")
+    console.print(f"  Dashboard:     {url}/")
+    console.print(f"  Scenario:      {sc.name} — {sc.description}")
+    console.print(f"  Persona:       {sc.persona.name}")
+    console.print(f"  Criteria:      {len(sc.success_criteria)}")
+    console.print(f"  Recording:     enabled (dual-channel)")
+    console.print("Waiting for calls...\n")
 
     uvicorn.run(server.app, host="0.0.0.0", port=p, log_level="warning")
-
-    # After server exits (--once mode or Ctrl+C)
-    if ci and once:
-        result = server.get_last_result()
-        if result and result.get("overall") == "PASS":
-            raise typer.Exit(0)
-        else:
-            raise typer.Exit(1)
 
 
 # ---------------------------------------------------------------------------
