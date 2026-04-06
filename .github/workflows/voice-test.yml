@@ -1,0 +1,57 @@
+name: Voice Agent Test
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install ColdCall
+        run: uv sync
+
+      - name: Run voice agent test
+        run: |
+          uv run coldcall serve \
+            --scenario dental-appointment \
+            --ci \
+            --once \
+            --timeout 120 \
+            --public-url "$PUBLIC_URL"
+        env:
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
+          DEEPGRAM_API_KEY: ${{ secrets.DEEPGRAM_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          CARTESIA_API_KEY: ${{ secrets.CARTESIA_API_KEY }}
+          PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
+
+      - name: Generate reports
+        if: always()
+        run: uv run coldcall report --last
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: voice-test-results
+          path: results/
+          retention-days: 30
+
+      - name: Print results summary
+        if: always()
+        run: uv run coldcall results --last --ci
