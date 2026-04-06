@@ -134,43 +134,150 @@ def serve(
 
 @app.command()
 def test(
-    url: str = typer.Argument(..., help="Agent WebSocket URL (ws://host:port/path)"),
+    target: str = typer.Argument(..., help="Phone number (+1...) or WebSocket URL (ws://...)"),
     scenario: str = typer.Option("dental-appointment", help="Scenario name or YAML path"),
     sample_rate: int = typer.Option(16000, "--rate", help="Audio sample rate in Hz"),
-    protocol: str = typer.Option("raw", help="Audio protocol: raw (binary PCM) or json (base64)"),
+    protocol: str = typer.Option("raw", help="Audio protocol: raw or json (WebSocket only)"),
+    port: int = typer.Option(8080, help="Local server port (phone call mode)"),
     ci: bool = typer.Option(False, help="CI mode: exit 0 on pass, 1 on fail"),
     config: Path = typer.Option(None, help="Path to coldcall.yaml"),
 ):
-    """Test a voice agent via direct WebSocket — no Twilio needed.
-
-    Connects directly to the agent's WebSocket endpoint, plays a persona,
-    records the conversation, and evaluates against success criteria.
+    """Test a voice agent. Give it a phone number or WebSocket URL.
 
     \b
     Examples:
-      coldcall test ws://localhost:8080/ws
-      coldcall test wss://agent.example.com/audio --scenario angry-refund
-      coldcall test ws://localhost:8080/ws --rate 8000 --protocol json
+      coldcall test +14155551234                          # calls the agent's phone
+      coldcall test +14155551234 --scenario angry-refund  # different scenario
+      coldcall test ws://localhost:8080/ws                 # direct WebSocket
     """
-    import asyncio
     from coldcall.config import apply_config_to_env, load_config
     from coldcall.scenarios import Scenario
 
     cfg = load_config(config)
     apply_config_to_env(cfg)
-
     sc = Scenario.from_yaml(scenario)
 
-    console.print(f"[bold]ColdCall[/] direct test")
+    is_phone = target.startswith("+") or target.replace("-", "").replace(" ", "").isdigit()
+
+    if is_phone:
+        _test_phone(target, sc, port, ci, cfg)
+    else:
+        _test_websocket(target, sc, sample_rate, protocol, ci)
+
+
+def _test_websocket(url, sc, sample_rate, protocol, ci):
+    """Direct WebSocket test — no Twilio needed."""
+    import asyncio
+    from coldcall.direct import run_direct_test
+
+    console.print(f"[bold]ColdCall[/] WebSocket test")
     console.print(f"  Agent:     {url}")
-    console.print(f"  Scenario:  {sc.name} — {sc.description}")
+    console.print(f"  Scenario:  {sc.name}")
     console.print(f"  Persona:   {sc.persona.name}")
-    console.print(f"  Protocol:  {protocol} @ {sample_rate}Hz")
     console.print()
 
-    from coldcall.direct import run_direct_test
     result = asyncio.run(run_direct_test(url, sc, sample_rate=sample_rate, protocol=protocol))
+    _print_and_exit(result, ci)
 
+
+def _test_phone(number, sc, port, ci, cfg):
+    """Phone call test — auto-tunnel, auto-server, auto-call."""
+    import os
+    import signal
+    import threading
+    import time
+
+    console.print(f"[bold]ColdCall[/] phone test")
+    console.print(f"  Calling:   {number}")
+    console.print(f"  Scenario:  {sc.name}")
+    console.print(f"  Persona:   {sc.persona.name}")
+
+    # Validate Twilio keys
+    if not os.environ.get("TWILIO_ACCOUNT_SID") or not os.environ.get("TWILIO_AUTH_TOKEN"):
+        console.print("\n[red]Error:[/] Twilio credentials required for phone calls.")
+        console.print("  Add to coldcall.yaml or set TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN")
+        raise typer.Exit(1)
+
+    # Start ngrok tunnel
+    console.print(f"\n  Starting tunnel...")
+    try:
+        from pyngrok import ngrok
+        tunnel = ngrok.connect(port, "http")
+        public_url = tunnel.public_url
+    except Exception as e:
+        console.print(f"[red]Error starting tunnel:[/] {e}")
+        console.print("  Install ngrok: https://ngrok.com/download")
+        console.print("  Or set NGROK_AUTHTOKEN in your environment")
+        raise typer.Exit(1)
+
+    console.print(f"  Tunnel:    {public_url}")
+
+    # Configure server
+    from coldcall import server
+    ws_scheme = "wss" if public_url.startswith("https") else "ws"
+    host = public_url.rstrip("/").replace("https://", "").replace("http://", "")
+    server.WEBSOCKET_URL = f"{ws_scheme}://{host}/ws"
+    server.PUBLIC_URL = public_url.rstrip("/")
+    server.SCENARIO = sc
+    server.ONCE_MODE = True
+    server.CI_MODE = ci
+
+    # Start uvicorn in a background thread
+    import uvicorn
+    uv_config = uvicorn.Config(server.app, host="0.0.0.0", port=port, log_level="warning")
+    uv_server = uvicorn.Server(uv_config)
+    server_thread = threading.Thread(target=uv_server.run, daemon=True)
+    server_thread.start()
+
+    # Wait for server to be ready
+    time.sleep(2)
+    console.print(f"  Server:    http://localhost:{port}")
+
+    # Configure Twilio webhook on the coldcall number
+    try:
+        from coldcall.phone import get_client, get_coldcall_number, configure_webhook
+        client = get_client()
+        from_number = get_coldcall_number(client)
+        # Find the phone SID
+        numbers = [n for n in client.incoming_phone_numbers.list() if n.friendly_name == "coldcall"]
+        if numbers:
+            configure_webhook(client, numbers[0].sid, f"{public_url}/voice")
+    except Exception as e:
+        console.print(f"[yellow]Warning:[/] Could not configure webhook: {e}")
+        console.print("  Run 'coldcall setup --provider twilio' first to provision a number")
+
+    # Make the outbound call
+    console.print(f"\n  Dialing {number}...")
+    try:
+        from coldcall.phone import make_outbound_call
+        call_sid = make_outbound_call(number, public_url, f"{ws_scheme}://{host}/ws")
+        console.print(f"  Call SID:  {call_sid}")
+    except Exception as e:
+        console.print(f"[red]Error:[/] {e}")
+        ngrok.disconnect(tunnel.public_url)
+        raise typer.Exit(1)
+
+    console.print(f"\n  Call in progress — listening...\n")
+
+    # Wait for the call to complete (server shuts down via ONCE_MODE)
+    try:
+        server_thread.join(timeout=sc.max_duration_seconds + 30)
+    except KeyboardInterrupt:
+        pass
+
+    # Cleanup
+    try:
+        ngrok.disconnect(tunnel.public_url)
+    except Exception:
+        pass
+
+    # Show results
+    result = server.get_last_result()
+    _print_and_exit(result, ci)
+
+
+def _print_and_exit(result, ci):
+    """Print evaluation result and exit with appropriate code."""
     if result:
         overall = result.get("overall", "UNKNOWN")
         color = "green" if overall == "PASS" else "red"
@@ -178,6 +285,11 @@ def test(
         total = len(result.get("criteria", []))
         console.print(f"\n[bold]Result:[/] [{color}]{overall}[/{color}] ({passed}/{total} criteria)")
         console.print(f"Summary: {result.get('summary', '')}")
+        for c in result.get("criteria", []):
+            r = c.get("result", "?")
+            rc = "green" if r == "PASS" else "red"
+            console.print(f"  [{rc}][{r}][/{rc}] {c.get('id', '')}: {c.get('explanation', '')}")
+        console.print(f"\n[dim]Run 'coldcall results --last' for full details.[/]")
 
     if ci:
         if result and result.get("overall") == "PASS":
