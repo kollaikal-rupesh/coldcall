@@ -457,31 +457,31 @@ async function render(page, data) {
 
 // --- Demo / Run Test Page ---
 async function renderDemo(el) {
-  const res = await fetch(`${API}/api/scenarios`);
+  const res = await fetch(API + '/api/scenarios');
   const scenarios = await res.json();
-  const settings = await (await fetch(`${API}/api/settings`)).json();
+  const settings = await (await fetch(API + '/api/settings')).json();
   const hasKey = settings.openai_api_key && settings.openai_api_key.length > 0;
+  const keyWarning = hasKey ? '' : '<div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6"><p class="text-sm text-yellow-400">No OpenAI API key configured. Go to Settings to add it.</p></div>';
+  const disabledAttr = hasKey ? '' : 'disabled';
+  const disabledCls = hasKey ? '' : 'opacity-50 cursor-not-allowed';
 
-  el.innerHTML = `
-    <div class="fade-in max-w-3xl">
-      <h2 class="text-2xl font-bold mb-2">Run Demo</h2>
-      <p class="text-gray-400 text-sm mb-6">Two LLMs have a phone conversation. Only requires an OpenAI API key.</p>
-      ${!hasKey ? '<div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-6"><p class="text-sm text-yellow-400">No OpenAI API key configured. <a onclick="navigate(\'settings\')" class="underline cursor-pointer">Add it in Settings</a> first.</p></div>' : ''}
-      <div class="flex gap-4 items-end mb-8">
-        <div class="flex-1">
-          <label class="block text-sm text-gray-400 mb-1">Scenario</label>
-          <select id="demo-scenario" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none">
-            ${scenarios.map(s => '<option value="'+s.name+'">'+esc(s.name)+' — '+esc(s.persona_name)+'</option>').join('')}
-          </select>
-        </div>
-        <button onclick="runDemo()" id="demo-btn" class="bg-brand hover:bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm transition ${!hasKey?'opacity-50 cursor-not-allowed':''}" ${!hasKey?'disabled':''}>Run Test</button>
-      </div>
-      <div id="demo-output" class="hidden">
-        <div id="demo-status" class="text-sm text-gray-400 mb-4 flex items-center gap-2"></div>
-        <div id="demo-transcript" class="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-2"></div>
-        <div id="demo-result" class="mt-4"></div>
-      </div>
-    </div>`;
+  el.innerHTML = '<div class="fade-in max-w-3xl">'
+    + '<h2 class="text-2xl font-bold mb-2">Run Demo</h2>'
+    + '<p class="text-gray-400 text-sm mb-6">Two LLMs have a phone conversation. Only requires an OpenAI API key.</p>'
+    + keyWarning
+    + '<div class="flex gap-4 items-end mb-8">'
+    + '<div class="flex-1">'
+    + '<label class="block text-sm text-gray-400 mb-1">Scenario</label>'
+    + '<select id="demo-scenario" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:border-brand focus:outline-none">'
+    + scenarios.map(function(s){return '<option value="'+s.name+'">'+esc(s.name)+' — '+esc(s.persona_name)+'</option>';}).join('')
+    + '</select></div>'
+    + '<button onclick="runDemo()" id="demo-btn" class="bg-brand hover:bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm transition '+disabledCls+'" '+disabledAttr+'>Run Test</button>'
+    + '</div>'
+    + '<div id="demo-output" class="hidden">'
+    + '<div id="demo-status" class="text-sm text-gray-400 mb-4 flex items-center gap-2"></div>'
+    + '<div id="demo-transcript" class="bg-gray-900 rounded-xl border border-gray-800 p-5 space-y-2"></div>'
+    + '<div id="demo-result" class="mt-4"></div>'
+    + '</div></div>';
 }
 
 async function runDemo() {
@@ -501,7 +501,7 @@ async function runDemo() {
   resultDiv.innerHTML = '';
 
   try {
-    const res = await fetch(`${API}/api/demo/run`, {
+    const res = await fetch(API + '/api/demo/run', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({scenario})
