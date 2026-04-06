@@ -574,7 +574,7 @@ async function renderScenarios(el) {
   let html = '<div class="fade-in">'
     + '<div class="flex items-center justify-between mb-6">'
     + '<h2 class="text-2xl font-bold">Scenarios <span class="text-sm font-normal text-gray-500">'+scenarios.length+' total</span></h2>'
-    + '<button onclick="navigate(\'create\')" class="bg-brand hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm transition">+ New Scenario</button>'
+    + '<button onclick="navigate(&apos;create&apos;)" class="bg-brand hover:bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm transition">+ New Scenario</button>'
     + '</div>';
   order.forEach(function(cat) {
     if (!grouped[cat]) return;
@@ -583,7 +583,7 @@ async function renderScenarios(el) {
       + '<h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-3">' + info.emoji + ' ' + info.label + ' <span class="text-gray-600">(' + grouped[cat].length + ')</span></h3>'
       + '<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">';
     grouped[cat].forEach(function(s) {
-      html += '<div onclick="navigate(\'scenario-detail\',\''+s.name+'\')" class="bg-gray-900 border border-gray-800 rounded-xl p-4 cursor-pointer hover:border-brand transition">'
+      html += '<div onclick="navigate(&apos;scenario-detail&apos;,&apos;'+s.name+'&apos;)" class="bg-gray-900 border border-gray-800 rounded-xl p-4 cursor-pointer hover:border-brand transition">'
         + '<h4 class="font-medium text-white text-sm mb-1">'+esc(s.name)+'</h4>'
         + '<p class="text-xs text-gray-400 mb-2">'+esc(s.description).substring(0,80)+'</p>'
         + '<div class="flex gap-3 text-xs text-gray-600">'
