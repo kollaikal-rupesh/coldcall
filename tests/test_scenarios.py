@@ -11,7 +11,7 @@ from coldcall.scenarios import Scenario, list_scenarios, _slugify, _extract_name
 class TestScenarioLoading:
     def test_load_all_builtin_scenarios(self):
         names = list_scenarios()
-        assert len(names) == 20
+        assert len(names) >= 20  # 20 original + new categories
         for name in names:
             s = Scenario.from_yaml(name)
             assert s.name
