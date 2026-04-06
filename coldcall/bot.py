@@ -40,11 +40,25 @@ log = logging.getLogger("coldcall")
 DEFAULT_SCENARIO = "dental-appointment"
 
 
-async def run_bot(websocket: WebSocket, scenario: Scenario | None = None):
-    """Run the voice bot pipeline on an accepted Twilio WebSocket."""
+async def run_bot(
+    websocket: WebSocket,
+    scenario: Scenario | None = None,
+    on_call_complete: callable | None = None,
+) -> dict | None:
+    """Run the voice bot pipeline on an accepted Twilio WebSocket.
 
+    Args:
+        websocket: Accepted FastAPI WebSocket.
+        scenario: Scenario config. Loads default if None.
+        on_call_complete: Optional callback with (session_dir, evaluation_result).
+
+    Returns:
+        Evaluation result dict, or None on error.
+    """
     if scenario is None:
         scenario = Scenario.from_yaml(DEFAULT_SCENARIO)
+
+    evaluation_result = None
 
     _, call_data = await parse_telephony_websocket(websocket)
     call_id = call_data["call_id"]
@@ -73,6 +87,13 @@ async def run_bot(websocket: WebSocket, scenario: Scenario | None = None):
             serializer=serializer,
         ),
     )
+
+    missing_keys = []
+    for key in ("DEEPGRAM_API_KEY", "OPENAI_API_KEY", "CARTESIA_API_KEY"):
+        if not os.environ.get(key):
+            missing_keys.append(key)
+    if missing_keys:
+        raise RuntimeError(f"Missing required API keys: {', '.join(missing_keys)}")
 
     stt = DeepgramSTTService(api_key=os.environ["DEEPGRAM_API_KEY"])
 
@@ -151,7 +172,8 @@ async def run_bot(websocket: WebSocket, scenario: Scenario | None = None):
 
         try:
             from coldcall.judge import evaluate_session
-            evaluate_session(session.output_dir, scenario)
+            nonlocal evaluation_result
+            evaluation_result = evaluate_session(session.output_dir, scenario)
         except Exception:
             log.exception("Failed to run evaluation")
 
@@ -161,7 +183,14 @@ async def run_bot(websocket: WebSocket, scenario: Scenario | None = None):
         except Exception:
             log.exception("Failed to generate reports")
 
+        if on_call_complete:
+            try:
+                on_call_complete(session.output_dir, evaluation_result)
+            except Exception:
+                log.exception("on_call_complete callback error")
+
         await task.queue_frames([EndFrame()])
 
     runner = PipelineRunner(handle_sigint=False)
     await runner.run(task)
+    return evaluation_result

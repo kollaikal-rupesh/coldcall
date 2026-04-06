@@ -232,7 +232,7 @@ def _render_criteria(criteria: list) -> str:
       <span class="badge badge-{cls}">{r}</span>
       <div>
         <div class="criterion-id">{c.get('id', '')}</div>
-        <div class="criterion-text">{c.get('explanation', c.get('description', ''))}</div>
+        <div class="criterion-text">{_escape(c.get('explanation', c.get('description', '')))}</div>
       </div>
     </div>""")
     return f'<h2>Evaluation</h2>\n<div class="section">\n{"".join(rows)}\n</div>'

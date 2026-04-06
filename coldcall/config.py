@@ -63,7 +63,10 @@ def load_config(path: Path | None = None) -> ColdCallConfig:
         path = find_config_file()
 
     if path and path.exists():
-        data = yaml.safe_load(path.read_text()) or {}
+        try:
+            data = yaml.safe_load(path.read_text()) or {}
+        except yaml.YAMLError as e:
+            raise RuntimeError(f"Error parsing {path}: {e}") from e
         cfg._path = path
 
         tw = data.get("twilio", {})
