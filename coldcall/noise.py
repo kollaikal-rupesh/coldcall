@@ -17,7 +17,13 @@ from pipecat.processors.frame_processor import FrameDirection, FrameProcessor
 
 log = logging.getLogger("coldcall")
 
-NOISE_DIR = Path(__file__).parent / "noise_samples"
+def _get_noise_dir() -> Path:
+    """Get the noise samples directory — uses XDG cache or ~/.cache."""
+    cache = Path.home() / ".cache" / "coldcall" / "noise_samples"
+    return cache
+
+
+NOISE_DIR = _get_noise_dir()
 SAMPLE_RATE = 8000
 SAMPLE_WIDTH = 2  # 16-bit PCM
 

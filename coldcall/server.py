@@ -85,12 +85,30 @@ async def recording_status(request: Request):
     return Response(status_code=204)
 
 
+_last_result: dict | None = None
+
+
+def get_last_result() -> dict | None:
+    return _last_result
+
+
 @app.websocket("/ws")
 async def media_stream(websocket: WebSocket):
     await websocket.accept()
     from coldcall.bot import run_bot
+
+    def _on_complete(session_dir, evaluation):
+        global _last_result
+        _last_result = evaluation
+        if ONCE_MODE:
+            import os
+            import signal
+            # In CI/once mode: signal the server to shut down after the call
+            log.info("--once mode: shutting down after call")
+            os.kill(os.getpid(), signal.SIGINT)
+
     try:
-        await run_bot(websocket, scenario=SCENARIO)
+        await run_bot(websocket, scenario=SCENARIO, on_call_complete=_on_complete)
     except Exception:
         log.exception("Bot pipeline error")
 
@@ -322,6 +340,8 @@ _INLINE_DASHBOARD = """\
 const API = '';
 let currentPage = 'scenarios';
 
+function esc(s) { if(!s) return ''; const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
 function navigate(page, data) {
   currentPage = page;
   document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('bg-gray-800', 'text-white'));
@@ -357,8 +377,8 @@ async function renderScenarios(el) {
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         ${scenarios.map(s => `
           <div onclick="navigate('scenario-detail','${s.name}')" class="bg-gray-900 border border-gray-800 rounded-xl p-5 cursor-pointer hover:border-brand transition">
-            <h3 class="font-semibold text-white mb-1">${s.name}</h3>
-            <p class="text-sm text-gray-400 mb-3">${s.description || ''}</p>
+            <h3 class="font-semibold text-white mb-1">${esc(s.name)}</h3>
+            <p class="text-sm text-gray-400 mb-3">${esc(s.description)}</p>
             <div class="flex gap-4 text-xs text-gray-500">
               <span>${s.persona_name}</span>
               <span>${s.criteria_count} criteria</span>
@@ -377,12 +397,12 @@ async function renderScenarioDetail(el, name) {
   el.innerHTML = `
     <div class="fade-in max-w-3xl">
       <button onclick="navigate('scenarios')" class="text-sm text-gray-500 hover:text-white mb-4 inline-block">&larr; Back</button>
-      <h2 class="text-2xl font-bold mb-1">${s.name}</h2>
-      <p class="text-gray-400 mb-6">${s.description}</p>
+      <h2 class="text-2xl font-bold mb-1">${esc(s.name)}</h2>
+      <p class="text-gray-400 mb-6">${esc(s.description)}</p>
       <div class="grid grid-cols-2 gap-6 mb-6">
         <div class="bg-gray-900 rounded-xl p-4 border border-gray-800">
           <h4 class="text-xs text-gray-500 uppercase mb-2">Goal</h4>
-          <p class="text-sm">${s.goal}</p>
+          <p class="text-sm">${esc(s.goal)}</p>
         </div>
         <div class="bg-gray-900 rounded-xl p-4 border border-gray-800">
           <h4 class="text-xs text-gray-500 uppercase mb-2">Persona</h4>
@@ -392,7 +412,7 @@ async function renderScenarioDetail(el, name) {
       </div>
       <div class="bg-gray-900 rounded-xl p-4 border border-gray-800 mb-6">
         <h4 class="text-xs text-gray-500 uppercase mb-2">System Prompt</h4>
-        <pre class="text-sm text-gray-300 whitespace-pre-wrap">${s.persona.system_prompt}</pre>
+        <pre class="text-sm text-gray-300 whitespace-pre-wrap">${esc(s.persona.system_prompt)}</pre>
       </div>
       <div class="bg-gray-900 rounded-xl p-4 border border-gray-800 mb-6">
         <h4 class="text-xs text-gray-500 uppercase mb-3">Success Criteria</h4>
@@ -401,7 +421,7 @@ async function renderScenarioDetail(el, name) {
             <span class="text-xs bg-gray-800 text-gray-400 rounded px-1.5 py-0.5 mt-0.5">${i+1}</span>
             <div>
               <span class="text-xs text-indigo-400 font-mono">${c.id}</span>
-              <p class="text-sm text-gray-300">${c.description}</p>
+              <p class="text-sm text-gray-300">${esc(c.description)}</p>
             </div>
           </div>
         `).join('')}
@@ -561,7 +581,7 @@ async function renderResultDetail(el, id) {
             <span class="mt-0.5 px-2 py-0.5 rounded text-xs font-medium ${c.result==='PASS'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">${c.result}</span>
             <div>
               <span class="text-xs font-mono text-indigo-400">${c.id}</span>
-              <p class="text-sm text-gray-400">${c.explanation || ''}</p>
+              <p class="text-sm text-gray-400">${esc(c.explanation)}</p>
             </div>
           </div>
         `).join('')}
@@ -575,7 +595,7 @@ async function renderResultDetail(el, id) {
             <div class="flex gap-3">
               <span class="text-xs text-gray-600 w-12 text-right shrink-0 mt-0.5">${t.start_time}s</span>
               <span class="text-xs font-medium w-20 shrink-0 mt-0.5 ${t.speaker==='AGENT'?'text-blue-400':'text-green-400'}">${t.speaker}</span>
-              <p class="text-sm text-gray-300">${t.text}</p>
+              <p class="text-sm text-gray-300">${esc(t.text)}</p>
             </div>
           `).join('')}
         </div>

@@ -56,17 +56,39 @@ def serve(
     server.ONCE_MODE = once
     server.CI_MODE = ci
 
-    console.print(f"[bold]ColdCall[/] server starting on port {p}")
-    console.print(f"  Voice webhook: {url}/voice")
-    console.print(f"  WebSocket:     {server.WEBSOCKET_URL}")
-    console.print(f"  Dashboard:     {url}/")
-    console.print(f"  Scenario:      {sc.name} — {sc.description}")
-    console.print(f"  Persona:       {sc.persona.name}")
-    console.print(f"  Criteria:      {len(sc.success_criteria)}")
-    console.print(f"  Recording:     enabled (dual-channel)")
-    console.print("Waiting for calls...\n")
+    if not ci:
+        console.print(f"[bold]ColdCall[/] server starting on port {p}")
+        console.print(f"  Voice webhook: {url}/voice")
+        console.print(f"  WebSocket:     {server.WEBSOCKET_URL}")
+        console.print(f"  Dashboard:     {url}/")
+        console.print(f"  Scenario:      {sc.name} — {sc.description}")
+        console.print(f"  Persona:       {sc.persona.name}")
+        console.print(f"  Criteria:      {len(sc.success_criteria)}")
+        console.print(f"  Recording:     enabled (dual-channel)")
+        if once:
+            console.print(f"  Mode:          --once (exit after first call)")
+        console.print("Waiting for calls...\n")
+
+    if timeout and once:
+        # Start a background timer that kills the server if no call arrives
+        import threading
+        def _timeout_handler():
+            console.print(f"[red]Timeout: no call received within {timeout}s[/]")
+            import os, signal
+            os.kill(os.getpid(), signal.SIGINT)
+        timer = threading.Timer(timeout, _timeout_handler)
+        timer.daemon = True
+        timer.start()
 
     uvicorn.run(server.app, host="0.0.0.0", port=p, log_level="warning")
+
+    # After server exits (--once mode or Ctrl+C)
+    if ci and once:
+        result = server.get_last_result()
+        if result and result.get("overall") == "PASS":
+            raise typer.Exit(0)
+        else:
+            raise typer.Exit(1)
 
 
 # ---------------------------------------------------------------------------

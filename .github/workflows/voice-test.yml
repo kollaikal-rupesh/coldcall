@@ -20,7 +20,10 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Install ColdCall
-        run: uv sync
+        run: uv sync --extra dev
+
+      - name: Run tests
+        run: uv run pytest tests/ -v
 
       - name: Verify CLI loads
         run: uv run coldcall --help

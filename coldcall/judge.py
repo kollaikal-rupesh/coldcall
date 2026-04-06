@@ -77,16 +77,27 @@ def evaluate(
         transcript=transcript_text,
     )
 
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-    response = client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0,
-        response_format={"type": "json_object"},
-    )
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("Missing OPENAI_API_KEY for evaluation")
+
+    client = OpenAI(api_key=api_key)
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0,
+            response_format={"type": "json_object"},
+        )
+    except Exception as e:
+        raise RuntimeError(f"OpenAI API error during evaluation: {e}") from e
 
     raw = response.choices[0].message.content
-    result = json.loads(raw)
+    try:
+        result = json.loads(raw)
+    except json.JSONDecodeError as e:
+        log.error(f"Judge returned invalid JSON: {raw[:200]}")
+        raise RuntimeError(f"Judge returned invalid JSON: {e}") from e
 
     # Add metadata
     result["model"] = model
