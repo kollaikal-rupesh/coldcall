@@ -7,9 +7,47 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install ColdCall
+        run: uv sync
+
+      - name: Verify CLI loads
+        run: uv run coldcall --help
+
+      - name: Verify all scenarios load
+        run: uv run coldcall scenarios list
+
+      - name: Verify imports
+        run: |
+          uv run python -c "
+          from coldcall.bot import run_bot
+          from coldcall.scenarios import Scenario, list_scenarios
+          from coldcall.judge import evaluate
+          from coldcall.metrics import compute_metrics
+          from coldcall.recorder import CallSession
+          from coldcall.humanizer import HumanizerProcessor
+          from coldcall.noise import NoiseInjectorProcessor
+          from coldcall.report import generate_reports
+          from coldcall.config import load_config
+          print(f'All imports OK — {len(list_scenarios())} scenarios loaded')
+          "
+
+  voice-test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: github.event_name == 'workflow_dispatch'
+    needs: lint
 
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +79,7 @@ jobs:
           PUBLIC_URL: ${{ secrets.PUBLIC_URL }}
 
       - name: Generate reports
-        if: always()
+        if: always() && hashFiles('results/*/metadata.json') != ''
         run: uv run coldcall report --last
 
       - name: Upload results
@@ -50,8 +88,9 @@ jobs:
         with:
           name: voice-test-results
           path: results/
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Print results summary
-        if: always()
+        if: always() && hashFiles('results/*/metadata.json') != ''
         run: uv run coldcall results --last --ci

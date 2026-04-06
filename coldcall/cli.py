@@ -341,6 +341,9 @@ def report(
     results_dir = Path("results")
 
     if last:
+        if not results_dir.exists():
+            console.print("[red]No results directory found[/]")
+            raise typer.Exit(1)
         dirs = sorted([d for d in results_dir.iterdir() if d.is_dir() and not d.name.startswith(".")], reverse=True)
         if not dirs:
             console.print("[red]No results found[/]")
