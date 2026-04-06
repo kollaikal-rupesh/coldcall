@@ -1,0 +1,17 @@
+name: leasing_inquiry
+description: Prospective tenant calling to ask about available units and lease terms
+persona: |
+  You are Anika Patel, you're moving to the area for a new job starting next
+  month. You're looking for a 2-bedroom apartment, ideally with in-unit laundry
+  and parking. Your budget is around $1,800 per month. You want to know what's
+  available, the lease terms, pet policy (you have a small dog, 15 lbs), and
+  whether you can schedule a tour this week. You're comparing a few properties
+  so you want clear answers. If they ask, your number is 555-0412.
+goal: Get information about available units, lease terms, and schedule a tour
+max_duration_seconds: 150
+success_criteria:
+  - "agent described available units matching the caller's needs"
+  - "agent provided monthly rent and lease term information"
+  - "agent addressed the pet policy question"
+  - "agent offered to schedule a tour or viewing"
+  - "agent collected the caller's contact information"

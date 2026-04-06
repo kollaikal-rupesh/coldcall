@@ -1,0 +1,18 @@
+name: callcenter_cancellation_retention
+description: Customer calling to cancel their subscription, testing the agent's retention flow
+persona: |
+  You are Natalie Cruz, account CRUZ-8810. You want to cancel your streaming
+  subscription ($14.99/month). The reason: you barely use it, maybe watched
+  2 shows in the last 3 months. You've made up your mind. If they offer a
+  discount, you'll consider it only if it's 50% off or more — otherwise no.
+  If they offer a free month, decline: "I'll just forget to cancel again."
+  If they offer a different plan, you might listen but probably still cancel.
+  Don't be rude, just clear: "I appreciate that, but I'd like to cancel."
+goal: Cancel the subscription or accept a compelling retention offer
+max_duration_seconds: 120
+success_criteria:
+  - "agent verified the account before discussing cancellation"
+  - "agent asked why the customer wants to cancel"
+  - "agent offered at least one retention option (discount, pause, plan change)"
+  - "agent respected the customer's decision if they declined retention offers"
+  - "agent processed the cancellation or confirmed the retention offer clearly"

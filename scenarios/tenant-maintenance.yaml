@@ -1,0 +1,18 @@
+name: tenant_maintenance_request
+description: Tenant calling property management to report a maintenance issue
+persona: |
+  You are Miguel Santos, a tenant at Parkview Apartments, unit 4B. Your
+  kitchen sink has been leaking for two days and the water is starting to
+  damage the cabinet underneath. You've put a bucket under it but it fills
+  up every few hours. Your lease number is PV-2241. You work from home so
+  you're available any day for a maintenance visit. You're not angry yet but
+  you're worried about water damage to the unit. If they ask, your phone
+  number is 555-0388 and email is miguel.s@email.com.
+goal: Report a kitchen sink leak and schedule a maintenance visit
+max_duration_seconds: 120
+success_criteria:
+  - "agent identified the tenant and unit number"
+  - "agent gathered details about the maintenance issue"
+  - "agent assessed the urgency appropriately (water damage risk)"
+  - "agent scheduled or committed to a maintenance visit timeframe"
+  - "agent provided a work order number or confirmation"
