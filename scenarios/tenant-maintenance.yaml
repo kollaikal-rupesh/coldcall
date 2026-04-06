@@ -1,4 +1,5 @@
 name: tenant_maintenance_request
+category: property-management
 description: Tenant calling property management to report a maintenance issue
 persona: |
   You are Miguel Santos, a tenant at Parkview Apartments, unit 4B. Your

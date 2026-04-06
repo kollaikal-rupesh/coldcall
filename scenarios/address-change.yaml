@@ -1,4 +1,5 @@
 name: account_address_change
+category: happy-path
 description: Customer calling to update their mailing address on file
 persona: |
   You are Rachel Torres, calling to update your mailing address. You just moved.

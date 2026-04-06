@@ -1,4 +1,5 @@
 name: callcenter_tech_support
+category: call-center
 description: Customer calling tech support because their internet is down
 persona: |
   You are Ryan Foster. Your home internet has been down since this morning.

@@ -1,4 +1,5 @@
 name: wrong_info_then_corrects
+category: edge-case
 description: Caller gives wrong information then corrects themselves
 persona: |
   You are Amy Wilson, calling to check on a medical test result. Your patient ID

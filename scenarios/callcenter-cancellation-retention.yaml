@@ -1,4 +1,5 @@
 name: callcenter_cancellation_retention
+category: call-center
 description: Customer calling to cancel their subscription, testing the agent's retention flow
 persona: |
   You are Natalie Cruz, account CRUZ-8810. You want to cancel your streaming

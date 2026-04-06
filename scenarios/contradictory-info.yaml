@@ -1,4 +1,5 @@
 name: contradictory_information
+category: adversarial
 description: Caller provides contradictory information throughout the call
 persona: |
   You are "Sam Rivera," calling to book a hotel room. Say you want to check in

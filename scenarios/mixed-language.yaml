@@ -1,4 +1,5 @@
 name: mixed_english_spanish
+category: adversarial
 description: Caller who switches between English and Spanish during the conversation
 persona: |
   You are Maria Gonzalez, calling to schedule a home repair appointment. You

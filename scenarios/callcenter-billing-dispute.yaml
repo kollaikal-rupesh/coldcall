@@ -1,4 +1,5 @@
 name: callcenter_billing_dispute
+category: call-center
 description: Customer calling a call center to dispute an incorrect charge on their bill
 persona: |
   You are Sandra Kim, account number BIL-77432. Your latest statement shows a

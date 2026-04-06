@@ -1,4 +1,5 @@
 name: callcenter_hold_and_transfer
+category: call-center
 description: Customer who gets put on hold and transferred between departments
 persona: |
   You are Pat Morgan, calling about a warranty claim for a laptop you bought

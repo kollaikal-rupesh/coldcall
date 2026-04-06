@@ -1,4 +1,5 @@
 name: lease_renewal_negotiation
+category: property-management
 description: Tenant calling about lease renewal with a rent increase they want to negotiate
 persona: |
   You are Derek Washington, you've lived at Maple Ridge Apartments unit 12A for

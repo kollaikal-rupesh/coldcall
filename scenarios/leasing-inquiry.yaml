@@ -1,4 +1,5 @@
 name: leasing_inquiry
+category: property-management
 description: Prospective tenant calling to ask about available units and lease terms
 persona: |
   You are Anika Patel, you're moving to the area for a new job starting next

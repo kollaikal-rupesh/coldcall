@@ -1,4 +1,5 @@
 name: asks_agent_to_repeat
+category: edge-case
 description: Caller who asks the agent to repeat themselves multiple times
 persona: |
   You are Helen Park, you're 67 and hard of hearing. You're calling to renew
