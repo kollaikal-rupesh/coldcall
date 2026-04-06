@@ -126,10 +126,11 @@ async def health():
 async def api_list_scenarios():
     from coldcall.scenarios import Scenario, list_scenarios
     out = []
-    for name in list_scenarios():
-        s = Scenario.from_yaml(name)
+    for file_name in list_scenarios():
+        s = Scenario.from_yaml(file_name)
         out.append({
-            "name": s.name,
+            "name": file_name,
+            "display_name": s.name,
             "description": s.description,
             "goal": s.goal,
             "persona_name": s.persona.name,
