@@ -134,7 +134,7 @@ def serve(
 
 @app.command()
 def test(
-    target: str = typer.Argument(..., help="Phone number (+1...) or WebSocket URL (ws://...)"),
+    target: str = typer.Argument(..., help="Phone number, WebSocket URL, or LiveKit room (lk://room)"),
     scenario: str = typer.Option("dental-appointment", help="Scenario name or YAML path"),
     sample_rate: int = typer.Option(16000, "--rate", help="Audio sample rate in Hz"),
     protocol: str = typer.Option("raw", help="Audio protocol: raw or json (WebSocket only)"),
@@ -142,13 +142,14 @@ def test(
     ci: bool = typer.Option(False, help="CI mode: exit 0 on pass, 1 on fail"),
     config: Path = typer.Option(None, help="Path to coldcall.yaml"),
 ):
-    """Test a voice agent. Give it a phone number or WebSocket URL.
+    """Test a voice agent. Give it a phone number, WebSocket URL, or LiveKit room.
 
     \b
     Examples:
-      coldcall test +14155551234                          # calls the agent's phone
-      coldcall test +14155551234 --scenario angry-refund  # different scenario
-      coldcall test ws://localhost:8080/ws                 # direct WebSocket
+      coldcall test ws://localhost:8080/ws                # Pipecat agent
+      coldcall test lk://my-room                          # LiveKit agent
+      coldcall test +14155551234                          # phone call (needs Twilio)
+      coldcall test +14155551234 --scenario angry-refund
     """
     from coldcall.config import apply_config_to_env, load_config
     from coldcall.scenarios import Scenario
@@ -158,11 +159,29 @@ def test(
     sc = Scenario.from_yaml(scenario)
 
     is_phone = target.startswith("+") or target.replace("-", "").replace(" ", "").isdigit()
+    is_livekit = target.startswith("lk://")
 
-    if is_phone:
+    if is_livekit:
+        _test_livekit(target[5:], sc, sample_rate, ci)
+    elif is_phone:
         _test_phone(target, sc, port, ci, cfg)
     else:
         _test_websocket(target, sc, sample_rate, protocol, ci)
+
+
+def _test_livekit(room_name, sc, sample_rate, ci):
+    """LiveKit room test — join as participant, talk to the agent."""
+    import asyncio
+    from coldcall.livekit_transport import run_livekit_test
+
+    console.print(f"[bold]ColdCall[/] LiveKit test")
+    console.print(f"  Room:      {room_name}")
+    console.print(f"  Scenario:  {sc.name}")
+    console.print(f"  Persona:   {sc.persona.name}")
+    console.print()
+
+    result = asyncio.run(run_livekit_test(room_name, sc, sample_rate=sample_rate))
+    _print_and_exit(result, ci)
 
 
 def _test_websocket(url, sc, sample_rate, protocol, ci):
