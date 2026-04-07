@@ -32,8 +32,16 @@ class DefaultsConfig:
 
 
 @dataclass
+class LiveKitConfig:
+    url: str = ""
+    api_key: str = ""
+    api_secret: str = ""
+
+
+@dataclass
 class ColdCallConfig:
     twilio: TwilioConfig = field(default_factory=TwilioConfig)
+    livekit: LiveKitConfig = field(default_factory=LiveKitConfig)
     deepgram_api_key: str = ""
     openai_api_key: str = ""
     cartesia_api_key: str = ""
@@ -73,6 +81,11 @@ def load_config(path: Path | None = None) -> ColdCallConfig:
         cfg.twilio.account_sid = tw.get("account_sid", "")
         cfg.twilio.auth_token = tw.get("auth_token", "")
 
+        lk = data.get("livekit", {})
+        cfg.livekit.url = lk.get("url", "")
+        cfg.livekit.api_key = lk.get("api_key", "")
+        cfg.livekit.api_secret = lk.get("api_secret", "")
+
         cfg.deepgram_api_key = data.get("deepgram", {}).get("api_key", "")
         cfg.openai_api_key = data.get("openai", {}).get("api_key", "")
         cfg.cartesia_api_key = data.get("cartesia", {}).get("api_key", "")
@@ -88,6 +101,9 @@ def load_config(path: Path | None = None) -> ColdCallConfig:
     # Environment variables override YAML
     cfg.twilio.account_sid = os.getenv("TWILIO_ACCOUNT_SID", cfg.twilio.account_sid)
     cfg.twilio.auth_token = os.getenv("TWILIO_AUTH_TOKEN", cfg.twilio.auth_token)
+    cfg.livekit.url = os.getenv("LIVEKIT_URL", cfg.livekit.url)
+    cfg.livekit.api_key = os.getenv("LIVEKIT_API_KEY", cfg.livekit.api_key)
+    cfg.livekit.api_secret = os.getenv("LIVEKIT_API_SECRET", cfg.livekit.api_secret)
     cfg.deepgram_api_key = os.getenv("DEEPGRAM_API_KEY", cfg.deepgram_api_key)
     cfg.openai_api_key = os.getenv("OPENAI_API_KEY", cfg.openai_api_key)
     cfg.cartesia_api_key = os.getenv("CARTESIA_API_KEY", cfg.cartesia_api_key)
@@ -101,6 +117,12 @@ def apply_config_to_env(cfg: ColdCallConfig):
         os.environ["TWILIO_ACCOUNT_SID"] = cfg.twilio.account_sid
     if cfg.twilio.auth_token:
         os.environ["TWILIO_AUTH_TOKEN"] = cfg.twilio.auth_token
+    if cfg.livekit.url:
+        os.environ["LIVEKIT_URL"] = cfg.livekit.url
+    if cfg.livekit.api_key:
+        os.environ["LIVEKIT_API_KEY"] = cfg.livekit.api_key
+    if cfg.livekit.api_secret:
+        os.environ["LIVEKIT_API_SECRET"] = cfg.livekit.api_secret
     if cfg.deepgram_api_key:
         os.environ["DEEPGRAM_API_KEY"] = cfg.deepgram_api_key
     if cfg.openai_api_key:

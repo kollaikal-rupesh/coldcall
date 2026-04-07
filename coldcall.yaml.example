@@ -1,21 +1,30 @@
 # ColdCall configuration
 # Copy to coldcall.yaml and fill in your keys
 
-twilio:
-  account_sid: ""
-  auth_token: ""
-
-deepgram:
+# For demo mode, only OpenAI is needed
+openai:
   api_key: ""
 
-openai:
+# For voice tests (coldcall test ws:// or lk://)
+deepgram:
   api_key: ""
 
 cartesia:
   api_key: ""
 
+# LiveKit (coldcall test lk://room-name)
+livekit:
+  url: ""          # wss://your-project.livekit.cloud
+  api_key: ""
+  api_secret: ""
+
+# Twilio (only for phone call tests)
+twilio:
+  account_sid: ""
+  auth_token: ""
+
 server:
-  public_url: ""  # e.g. https://abc.ngrok.io
+  public_url: ""   # only needed for phone calls
   port: 8080
 
 defaults:
