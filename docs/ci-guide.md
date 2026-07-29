@@ -44,6 +44,7 @@ Go to Settings → Secrets and variables → Actions → New repository secret:
 | `OPENAI_API_KEY` | OpenAI API key |
 | `CARTESIA_API_KEY` | Cartesia API key |
 | `PUBLIC_URL` | Your stable public URL (e.g. `https://your-domain.ngrok.app`) |
+| `ALPHA_BETA` | Optional project secret (use underscores — not `ALPHA-beta`) |
 
 ### 2. Add the workflow
 
