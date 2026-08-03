@@ -7,3 +7,12 @@ dist/
 results/
 coldcall/noise_samples/
 coldcall.yaml
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+DerivedData/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
