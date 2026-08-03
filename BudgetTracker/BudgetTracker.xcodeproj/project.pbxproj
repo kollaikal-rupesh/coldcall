@@ -1,0 +1,349 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E48FEC1D564246C992ABA1E2 /* BudgetTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AB095864DD475DBD59BE6F /* BudgetTrackerApp.swift */; };
+		36288B8AEBC64BA1ACE11BE5 /* BudgetCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EF83C8EB99416EB972B487 /* BudgetCategory.swift */; };
+		87BF340986C040AB90BE7843 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F305D835DA2497DBD155D69 /* Transaction.swift */; };
+		36631C766C97415BA7F7AE48 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F16D54B9F1F4D5EA8A96D3B /* AppTheme.swift */; };
+		2E092AC005314CFEAC8CD6A1 /* BudgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97427D4B11C4AF29B92F607 /* BudgetStore.swift */; };
+		C5B59E6D92DD4643A7D229CC /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8270341E8B004F7CAE47A8B6 /* Formatters.swift */; };
+		CC3E6F08E87F4A3DA36F7276 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99206C60FB6A408AB39F16E4 /* SampleData.swift */; };
+		6EA27C9C8A444B919AFDE6FC /* AddTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C347D5BAA0E5404D84D625F4 /* AddTransactionView.swift */; };
+		0889067D02E848938777FFC1 /* BudgetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE749401FE1144108B5E947A /* BudgetsView.swift */; };
+		15C6189E47BB41369531AA32 /* BudgetProgressRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7E726C634BD4945BC2EB2C8 /* BudgetProgressRow.swift */; };
+		05346480CE824C6BA7CB147E /* TransactionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E25F37AD53E24B39A849A32A /* TransactionRow.swift */; };
+		AD4C67CCC6F84006B4954629 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A872C338A8DB4B1C9D6DDB9A /* DashboardView.swift */; };
+		7D86221D5AC643FF97E0C3A5 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92E05213B0DF4DECAA313EE5 /* RootTabView.swift */; };
+		BE3285236F1C400B92468088 /* TransactionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 818BD6DB88D64E459E9E6B86 /* TransactionsView.swift */; };
+		CC04EB4AEE394E36885B96F2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 94ABA3AA03724EDE933DECD4 /* Assets.xcassets */; };
+		38A03CE3B682466DB06B7C0F /* Charts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1693C73F75F44D6A9BF27ED6 /* Charts.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		30130418BCD74D18AE8F4442 /* BudgetTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BudgetTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		12AB095864DD475DBD59BE6F /* BudgetTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetTrackerApp.swift; sourceTree = "<group>"; };
+		50EF83C8EB99416EB972B487 /* BudgetCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetCategory.swift; sourceTree = "<group>"; };
+		1F305D835DA2497DBD155D69 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		0F16D54B9F1F4D5EA8A96D3B /* AppTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTheme.swift; sourceTree = "<group>"; };
+		C97427D4B11C4AF29B92F607 /* BudgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetStore.swift; sourceTree = "<group>"; };
+		8270341E8B004F7CAE47A8B6 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		99206C60FB6A408AB39F16E4 /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
+		C347D5BAA0E5404D84D625F4 /* AddTransactionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTransactionView.swift; sourceTree = "<group>"; };
+		BE749401FE1144108B5E947A /* BudgetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetsView.swift; sourceTree = "<group>"; };
+		C7E726C634BD4945BC2EB2C8 /* BudgetProgressRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetProgressRow.swift; sourceTree = "<group>"; };
+		E25F37AD53E24B39A849A32A /* TransactionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionRow.swift; sourceTree = "<group>"; };
+		A872C338A8DB4B1C9D6DDB9A /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		92E05213B0DF4DECAA313EE5 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		818BD6DB88D64E459E9E6B86 /* TransactionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsView.swift; sourceTree = "<group>"; };
+		94ABA3AA03724EDE933DECD4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1693C73F75F44D6A9BF27ED6 /* Charts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Charts.framework; path = System/Library/Frameworks/Charts.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		95A812E9DDBE4F0D8B590F9E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				38A03CE3B682466DB06B7C0F /* Charts.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		788945AB17FB4130984706CB = {
+			isa = PBXGroup;
+			children = (
+				731625A2B13B4B58BE9012D6 /* BudgetTracker */,
+				83931003CC214C778F7C4D63 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		83931003CC214C778F7C4D63 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				30130418BCD74D18AE8F4442 /* BudgetTracker.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		172351531DCB4AF09EB8338A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				C7E726C634BD4945BC2EB2C8 /* BudgetProgressRow.swift */,
+				E25F37AD53E24B39A849A32A /* TransactionRow.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		2B03F436FD754A7E87A05A13 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C347D5BAA0E5404D84D625F4 /* AddTransactionView.swift */,
+				BE749401FE1144108B5E947A /* BudgetsView.swift */,
+				A872C338A8DB4B1C9D6DDB9A /* DashboardView.swift */,
+				92E05213B0DF4DECAA313EE5 /* RootTabView.swift */,
+				818BD6DB88D64E459E9E6B86 /* TransactionsView.swift */,
+				172351531DCB4AF09EB8338A /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6E3069B177A847599B8F4F70 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				50EF83C8EB99416EB972B487 /* BudgetCategory.swift */,
+				1F305D835DA2497DBD155D69 /* Transaction.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		755EDE6ACD1C45D8875C51B7 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				0F16D54B9F1F4D5EA8A96D3B /* AppTheme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		8B5F824F74E644878B8F10A3 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				C97427D4B11C4AF29B92F607 /* BudgetStore.swift */,
+				8270341E8B004F7CAE47A8B6 /* Formatters.swift */,
+				99206C60FB6A408AB39F16E4 /* SampleData.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		731625A2B13B4B58BE9012D6 /* BudgetTracker */ = {
+			isa = PBXGroup;
+			children = (
+				12AB095864DD475DBD59BE6F /* BudgetTrackerApp.swift */,
+				6E3069B177A847599B8F4F70 /* Models */,
+				2B03F436FD754A7E87A05A13 /* Views */,
+				755EDE6ACD1C45D8875C51B7 /* Theme */,
+				8B5F824F74E644878B8F10A3 /* Utilities */,
+				94ABA3AA03724EDE933DECD4 /* Assets.xcassets */,
+			);
+			path = BudgetTracker;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		ADC01D3DC8074F92888281AD /* BudgetTracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A66A545055749C685541F8F /* Build configuration list for PBXNativeTarget "BudgetTracker" */;
+			buildPhases = (
+				9E34CB924DB34708A8B2B39A /* Sources */,
+				95A812E9DDBE4F0D8B590F9E /* Frameworks */,
+				7520C98E41A24CA89D8E950F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BudgetTracker;
+			productName = BudgetTracker;
+			productReference = 30130418BCD74D18AE8F4442 /* BudgetTracker.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BD693C95F2AF45D292E1D45C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					ADC01D3DC8074F92888281AD = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = 743C06D061384718A087F1AC /* Build configuration list for PBXProject "BudgetTracker" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 788945AB17FB4130984706CB;
+			productRefGroup = 83931003CC214C778F7C4D63 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				ADC01D3DC8074F92888281AD /* BudgetTracker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		7520C98E41A24CA89D8E950F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CC04EB4AEE394E36885B96F2 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9E34CB924DB34708A8B2B39A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E48FEC1D564246C992ABA1E2 /* BudgetTrackerApp.swift in Sources */,
+				36288B8AEBC64BA1ACE11BE5 /* BudgetCategory.swift in Sources */,
+				87BF340986C040AB90BE7843 /* Transaction.swift in Sources */,
+				36631C766C97415BA7F7AE48 /* AppTheme.swift in Sources */,
+				2E092AC005314CFEAC8CD6A1 /* BudgetStore.swift in Sources */,
+				C5B59E6D92DD4643A7D229CC /* Formatters.swift in Sources */,
+				CC3E6F08E87F4A3DA36F7276 /* SampleData.swift in Sources */,
+				6EA27C9C8A444B919AFDE6FC /* AddTransactionView.swift in Sources */,
+				0889067D02E848938777FFC1 /* BudgetsView.swift in Sources */,
+				15C6189E47BB41369531AA32 /* BudgetProgressRow.swift in Sources */,
+				05346480CE824C6BA7CB147E /* TransactionRow.swift in Sources */,
+				AD4C67CCC6F84006B4954629 /* DashboardView.swift in Sources */,
+				7D86221D5AC643FF97E0C3A5 /* RootTabView.swift in Sources */,
+				BE3285236F1C400B92468088 /* TransactionsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		83A0CA4C9F274046B9F742EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		0205EACC33CA4B8A84530D05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		498CD247CC8A46269937378C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Ledger;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ledger.budgettracker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3AFB366D976B4D17BAFCD99F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Ledger;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ledger.budgettracker;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		743C06D061384718A087F1AC /* Build configuration list for PBXProject "BudgetTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				83A0CA4C9F274046B9F742EF /* Debug */,
+				0205EACC33CA4B8A84530D05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A66A545055749C685541F8F /* Build configuration list for PBXNativeTarget "BudgetTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				498CD247CC8A46269937378C /* Debug */,
+				3AFB366D976B4D17BAFCD99F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BD693C95F2AF45D292E1D45C /* Project object */;
+}
