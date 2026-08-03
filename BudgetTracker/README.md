@@ -34,6 +34,18 @@ BudgetTracker/
 └── Utilities/                      # Formatting, summaries, sample seed data
 ```
 
+## Web preview (no Xcode required)
+
+A mobile browser preview lives in `web/`:
+
+```bash
+cd BudgetTracker/web
+npm install
+npm run dev
+```
+
+Same core flows as the iOS app (home, activity, budgets, add entry), with data stored in `localStorage`.
+
 ## Notes
 
 - Bundle ID: `com.ledger.budgettracker`
